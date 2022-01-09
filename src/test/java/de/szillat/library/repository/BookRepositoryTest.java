@@ -2,6 +2,7 @@ package de.szillat.library.repository;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.szillat.library.model.Book;
@@ -35,5 +36,33 @@ public class BookRepositoryTest {
         assertNotNull(loadedBookFromDb);
         assertTrue(loadedBookFromDb.isPresent());
         assertEquals(book.title, loadedBookFromDb.get().title);
+
+        Optional<Book> thisBookIsNotFound = bookRepository.findById(Long.valueOf(-1));
+        assertNotNull(thisBookIsNotFound);
+        assertFalse(thisBookIsNotFound.isPresent());
+    }
+
+    @Test
+    public void testFindByIsbn() {
+        Book book = new Book();
+        book.title = "Ready Player Two";
+        book.originalTitle = "Ready Player Two";
+        book.isbn = "978-0-593-35634-0";
+        book.publishedYear = 2019;
+
+        Book storedBook = bookRepository.save(book);
+        assertNotNull(storedBook);
+        assertNotNull(storedBook.id);
+        assertTrue(storedBook.id > 0);
+
+        Optional<Book> bookFoundByIsbn = bookRepository.findByIsbn(book.isbn);
+        assertNotNull(bookFoundByIsbn);
+        assertTrue(bookFoundByIsbn.isPresent());
+        assertEquals(book.title, bookFoundByIsbn.get().title);
+        assertEquals(book.isbn, bookFoundByIsbn.get().isbn);
+
+        Optional<Book>thisBookIsNotFound = bookRepository.findByIsbn("XXXX");
+        assertNotNull(thisBookIsNotFound);
+        assertFalse(thisBookIsNotFound.isPresent());
     }
 }
