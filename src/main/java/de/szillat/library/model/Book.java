@@ -1,12 +1,10 @@
 package de.szillat.library.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Optional;
 
 @Entity
+@Table(name = "books")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,7 +15,7 @@ public class Book {
     public String isbn;
     public int publishedYear;
 
-    protected Book() {
+    public Book() {
         id = null;
         title = isbn = null;
         originalTitle = null;
