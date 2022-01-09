@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Optional;
 
 @Entity
-@Table(name = "books")
+@Table(name = "books", indexes = @Index(columnList = "isbn"))
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -12,6 +12,7 @@ public class Book {
 
     public String title;
     public String originalTitle;
+
     public String isbn;
     public int publishedYear;
 
