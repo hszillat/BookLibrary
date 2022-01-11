@@ -22,9 +22,9 @@ public class BookRepositoryTest {
     @Test
     public void testFindById() {
         Book book = new Book();
-        book.title = "Ready Player Two";
+        book.setTitle( "Ready Player Two");
         book.originalTitle = "Ready Player Two";
-        book.isbn = "978-0-593-35634-0";
+        book.setIsbn ("978-0-593-35634-0");
         book.publishedYear = 2019;
 
         Book storedBook = bookRepository.save(book);
@@ -35,7 +35,7 @@ public class BookRepositoryTest {
         Optional<Book> loadedBookFromDb = bookRepository.findById(storedBook.id);
         assertNotNull(loadedBookFromDb);
         assertTrue(loadedBookFromDb.isPresent());
-        assertEquals(book.title, loadedBookFromDb.get().title);
+        assertEquals(book.getTitle(), loadedBookFromDb.get().getTitle());
 
         Optional<Book> thisBookIsNotFound = bookRepository.findById(Long.valueOf(-1));
         assertNotNull(thisBookIsNotFound);
@@ -45,9 +45,9 @@ public class BookRepositoryTest {
     @Test
     public void testFindByIsbn() {
         Book book = new Book();
-        book.title = "Ready Player Two";
+        book.setTitle ("Ready Player Two");
         book.originalTitle = "Ready Player Two";
-        book.isbn = "978-0-593-35634-0";
+        book.setIsbn ( "978-0-593-35634-0");
         book.publishedYear = 2019;
 
         Book storedBook = bookRepository.save(book);
@@ -55,11 +55,11 @@ public class BookRepositoryTest {
         assertNotNull(storedBook.id);
         assertTrue(storedBook.id > 0);
 
-        Optional<Book> bookFoundByIsbn = bookRepository.findByIsbn(book.isbn);
+        Optional<Book> bookFoundByIsbn = bookRepository.findByIsbn(book.getIsbn());
         assertNotNull(bookFoundByIsbn);
         assertTrue(bookFoundByIsbn.isPresent());
-        assertEquals(book.title, bookFoundByIsbn.get().title);
-        assertEquals(book.isbn, bookFoundByIsbn.get().isbn);
+        assertEquals(book.getTitle(), bookFoundByIsbn.get().getTitle());
+        assertEquals(book.getIsbn(), bookFoundByIsbn.get().getIsbn());
 
         Optional<Book>thisBookIsNotFound = bookRepository.findByIsbn("XXXX");
         assertNotNull(thisBookIsNotFound);
