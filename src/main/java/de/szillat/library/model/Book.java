@@ -1,5 +1,7 @@
 package de.szillat.library.model;
 
+import org.springframework.lang.NonNull;
+
 import javax.persistence.*;
 import java.util.Optional;
 
@@ -10,10 +12,14 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
+    @NonNull
     public String title;
+
     public String originalTitle;
 
+    @NonNull
     public String isbn;
+
     public int publishedYear;
 
     public Book() {
