@@ -10,7 +10,7 @@ public class BookNotFoundAdvice {
     @ResponseBody
     @ExceptionHandler(BookNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String  processException(BookNotFoundException e) {
+    public String processException(BookNotFoundException e) {
         return e.getMessage();
     }
 }
