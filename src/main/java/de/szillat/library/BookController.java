@@ -13,6 +13,8 @@ import org.springframework.hateoas.EntityModel;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,7 +46,7 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public CollectionModel<EntityModel<Book>> all() {
+    public ResponseEntity<CollectionModel<EntityModel<Book>>> all() {
         assert bookRepository != null;
         assert assembler != null;
 
@@ -53,11 +55,15 @@ public class BookController {
                         .map(book -> assembler.toModel(book))
                         .collect(Collectors.toList());
 
-        return CollectionModel.of(books, linkTo(methodOn(BookController.class).all()).withSelfRel());
+        CollectionModel<EntityModel<Book>> bookEntities = CollectionModel.of(books, linkTo(methodOn(BookController.class).all()).withSelfRel());
+
+        return ResponseEntity
+                .ok()
+                .body(bookEntities);
     }
 
     @GetMapping("/books/{id}")
-    public EntityModel<Book> one(@PathVariable Long id) {
+    public ResponseEntity<?> one(@PathVariable Long id) {
         assert bookRepository != null;
         assert assembler != null;
 
@@ -81,22 +87,28 @@ public class BookController {
             book = bookRepository.findById(id);
         }
 
-        return assembler.toModel(book.orElseThrow(() ->
+        EntityModel<Book> bookEntity = assembler.toModel(book.orElseThrow(() ->
                 new BookNotFoundException(id)));
+
+        return ResponseEntity.ok(bookEntity);
     }
 
     @PostMapping("/books")
-    public EntityModel<Book> newBook(@RequestBody Book book) {
+    public ResponseEntity<?> newBook(@RequestBody Book book) {
         assert bookRepository != null;
         assert assembler != null;
 
         _log.debug("Storing book: '{}'", book);
 
-        return assembler.toModel(bookRepository.save(book));
+        EntityModel<Book> bookEntity = assembler.toModel(bookRepository.save(book));
+
+        return ResponseEntity
+                .created(bookEntity.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(bookEntity);
     }
 
     @PutMapping("/books/{id}")
-    public EntityModel<Book> updateBook(@RequestBody Book newBook, @PathVariable Long id) {
+    public ResponseEntity<?> updateBook(@RequestBody Book newBook, @PathVariable Long id) {
         assert bookRepository != null;
         assert assembler != null;
 
@@ -117,11 +129,15 @@ public class BookController {
                     return bookRepository.save(newBook);
                 });
 
-        return assembler.toModel(storedBook);
+        EntityModel<Book> bookEntity = assembler.toModel(storedBook);
+
+        return ResponseEntity
+                .accepted()
+                .body(bookEntity);
     }
 
     @DeleteMapping("/books/{id}")
-    public EntityModel<Void> deleteBook(@PathVariable Long id) {
+    public ResponseEntity<?> deleteBook(@PathVariable Long id) {
         assert bookRepository != null;
         assert assembler != null;
 
@@ -129,7 +145,6 @@ public class BookController {
             bookRepository.deleteById(id);
         else throw new BookNotFoundException(id);
 
-        return EntityModel.of(null,
-                linkTo(methodOn(BookController.class).all()).withRel("books"));
+        return ResponseEntity.noContent().build();
     }
 }
