@@ -27,12 +27,15 @@ public class BookController {
 
     private final BookRepository bookRepository;
 
+    private final BookModelAssembler assembler;
+
     public static void main(String[] args) {
         SpringApplication.run(BookController.class, args);
     }
 
-    public BookController(BookRepository bookRepository) {
+    public BookController(BookRepository bookRepository, BookModelAssembler assembler) {
         this.bookRepository = bookRepository;
+        this.assembler = assembler;
     }
 
     @GetMapping("/hello")
@@ -43,12 +46,11 @@ public class BookController {
     @GetMapping("/books")
     public CollectionModel<EntityModel<Book>> all() {
         assert bookRepository != null;
+        assert assembler != null;
 
         List<EntityModel<Book>> books =
                 StreamSupport.stream(bookRepository.findAll().spliterator(), false)
-                        .map(book -> EntityModel.of(book,
-                                linkTo(methodOn(BookController.class).one(book.id)).withSelfRel(),
-                                linkTo(methodOn(BookController.class).all()).withRel("books")))
+                        .map(book -> assembler.toModel(book))
                         .collect(Collectors.toList());
 
         return CollectionModel.of(books, linkTo(methodOn(BookController.class).all()).withSelfRel());
@@ -57,6 +59,7 @@ public class BookController {
     @GetMapping("/books/{id}")
     public EntityModel<Book> one(@PathVariable Long id) {
         assert bookRepository != null;
+        assert assembler != null;
 
         _log.debug("id = {}", id);
 
@@ -78,31 +81,26 @@ public class BookController {
             book = bookRepository.findById(id);
         }
 
-        if (book.isPresent()) {
-            return EntityModel.of(book.get(),
-                    linkTo(methodOn(BookController.class).one(id)).withSelfRel(),
-                    linkTo(methodOn(BookController.class).all()).withRel("books"));
-        }
-
-        throw new BookNotFoundException(id);
+        return assembler.toModel(book.orElseThrow(() ->
+                new BookNotFoundException(id)));
     }
 
     @PostMapping("/books")
     public EntityModel<Book> newBook(@RequestBody Book book) {
         assert bookRepository != null;
+        assert assembler != null;
 
         _log.debug("Storing book: '{}'", book);
 
-        return EntityModel.of(bookRepository.save(book),
-                linkTo(methodOn(BookController.class).one(book.id)).withSelfRel(),
-                linkTo(methodOn(BookController.class).all()).withRel("books"));
+        return assembler.toModel(bookRepository.save(book));
     }
 
     @PutMapping("/books/{id}")
     public EntityModel<Book> updateBook(@RequestBody Book newBook, @PathVariable Long id) {
-        _log.debug("Updating book = '{}' with ID = '{}'", newBook, id);
-
         assert bookRepository != null;
+        assert assembler != null;
+
+        _log.debug("Updating book = '{}' with ID = '{}'", newBook, id);
 
         Book storedBook = bookRepository.findById(id)
                 .map(book -> {
@@ -119,21 +117,19 @@ public class BookController {
                     return bookRepository.save(newBook);
                 });
 
-        return EntityModel.of(storedBook,
-                linkTo(methodOn(BookController.class).one(storedBook.id)).withSelfRel(),
-                linkTo(methodOn(BookController.class).all()).withRel("books"));
+        return assembler.toModel(storedBook);
     }
 
     @DeleteMapping("/books/{id}")
     public EntityModel<Void> deleteBook(@PathVariable Long id) {
         assert bookRepository != null;
+        assert assembler != null;
 
         if (id != null)
             bookRepository.deleteById(id);
         else throw new BookNotFoundException(id);
 
         return EntityModel.of(null,
-                linkTo(methodOn(BookController.class).one(id)).withSelfRel(),
                 linkTo(methodOn(BookController.class).all()).withRel("books"));
     }
 }
