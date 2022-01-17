@@ -1,15 +1,18 @@
 package de.szillat.library.model;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
-import java.util.Optional;
 
+@Data
+@NoArgsConstructor
 @Entity
-@Table(name = "books", indexes = @Index(columnList = "isbn"))
+@Table(name = "books", indexes = {@Index(columnList = "isbn"), @Index(columnList = "title")})
 public class Book {
     private static final Logger _log = LoggerFactory.getLogger(Book.class);
 
@@ -26,13 +29,6 @@ public class Book {
     private String isbn;
 
     public int publishedYear;
-
-    public Book() {
-        id = null;
-        title = isbn = null;
-        originalTitle = null;
-        publishedYear = 0;
-    }
 
     @NonNull
     public String getTitle() {
