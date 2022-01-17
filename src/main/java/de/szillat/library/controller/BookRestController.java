@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@SpringBootApplication
 @RestController
 public class BookRestController {
     private static final Logger _log = LoggerFactory.getLogger(BookRestController.class);
@@ -31,10 +30,6 @@ public class BookRestController {
     private final BookRepository bookRepository;
 
     private final BookModelAssembler assembler;
-
-    public static void main(String[] args) {
-        SpringApplication.run(BookRestController.class, args);
-    }
 
     public BookRestController(BookRepository bookRepository, BookModelAssembler assembler) {
         this.bookRepository = bookRepository;
