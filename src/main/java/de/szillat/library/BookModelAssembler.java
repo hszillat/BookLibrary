@@ -1,5 +1,6 @@
 package de.szillat.library;
 
+import de.szillat.library.controller.BookRestController;
 import de.szillat.library.model.Book;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -13,7 +14,7 @@ public class BookModelAssembler implements RepresentationModelAssembler<Book, En
     @Override
     public EntityModel<Book> toModel(Book book) {
         return EntityModel.of(book,
-                linkTo(methodOn(BookController.class).one(book.id)).withSelfRel(),
-                linkTo(methodOn(BookController.class).all()).withRel("books"));
+                linkTo(methodOn(BookRestController.class).one(book.id)).withSelfRel(),
+                linkTo(methodOn(BookRestController.class).all()).withRel("books"));
     }
 }

@@ -1,5 +1,6 @@
-package de.szillat.library;
+package de.szillat.library.controller;
 
+import de.szillat.library.BookModelAssembler;
 import de.szillat.library.model.Book;
 import de.szillat.library.repository.BookNotFoundException;
 import de.szillat.library.repository.BookRepository;
@@ -24,28 +25,28 @@ import java.util.stream.StreamSupport;
 
 @SpringBootApplication
 @RestController
-public class BookController {
-    private static final Logger _log = LoggerFactory.getLogger(BookController.class);
+public class BookRestController {
+    private static final Logger _log = LoggerFactory.getLogger(BookRestController.class);
 
     private final BookRepository bookRepository;
 
     private final BookModelAssembler assembler;
 
     public static void main(String[] args) {
-        SpringApplication.run(BookController.class, args);
+        SpringApplication.run(BookRestController.class, args);
     }
 
-    public BookController(BookRepository bookRepository, BookModelAssembler assembler) {
+    public BookRestController(BookRepository bookRepository, BookModelAssembler assembler) {
         this.bookRepository = bookRepository;
         this.assembler = assembler;
     }
 
-    @GetMapping("/hello")
+    @GetMapping("/service/hello")
     public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
         return String.format("Hello %s!", name);
     }
 
-    @GetMapping("/books")
+    @GetMapping("/service/books")
     public ResponseEntity<CollectionModel<EntityModel<Book>>> all() {
         assert bookRepository != null;
         assert assembler != null;
@@ -55,14 +56,14 @@ public class BookController {
                         .map(book -> assembler.toModel(book))
                         .collect(Collectors.toList());
 
-        CollectionModel<EntityModel<Book>> bookEntities = CollectionModel.of(books, linkTo(methodOn(BookController.class).all()).withSelfRel());
+        CollectionModel<EntityModel<Book>> bookEntities = CollectionModel.of(books, linkTo(methodOn(BookRestController.class).all()).withSelfRel());
 
         return ResponseEntity
                 .ok()
                 .body(bookEntities);
     }
 
-    @GetMapping("/books/{id}")
+    @GetMapping("/service/books/{id}")
     public ResponseEntity<?> one(@PathVariable Long id) {
         assert bookRepository != null;
         assert assembler != null;
@@ -93,7 +94,7 @@ public class BookController {
         return ResponseEntity.ok(bookEntity);
     }
 
-    @PostMapping("/books")
+    @PostMapping("/service/books")
     public ResponseEntity<?> newBook(@RequestBody Book book) {
         assert bookRepository != null;
         assert assembler != null;
@@ -107,7 +108,7 @@ public class BookController {
                 .body(bookEntity);
     }
 
-    @PutMapping("/books/{id}")
+    @PutMapping("/service/books/{id}")
     public ResponseEntity<?> updateBook(@RequestBody Book newBook, @PathVariable Long id) {
         assert bookRepository != null;
         assert assembler != null;
@@ -136,7 +137,7 @@ public class BookController {
                 .body(bookEntity);
     }
 
-    @DeleteMapping("/books/{id}")
+    @DeleteMapping("/service/books/{id}")
     public ResponseEntity<?> deleteBook(@PathVariable Long id) {
         assert bookRepository != null;
         assert assembler != null;
