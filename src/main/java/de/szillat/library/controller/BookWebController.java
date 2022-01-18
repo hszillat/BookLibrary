@@ -86,7 +86,7 @@ public class BookWebController {
         if (savedBookResponse.getStatusCode().value() == HttpStatus.OK.value()
                 || savedBookResponse.getStatusCode().value() == HttpStatus.CREATED.value()) {
             ModelAndView mav = new ModelAndView();
-            mav.setViewName("redirect:/show_book");
+            mav.setViewName("redirect:/books");
             mav.addObject("title", "My library application");
             mav.addObject("book", ((EntityModel<?>) savedBookResponse.getBody()).getContent());
 
