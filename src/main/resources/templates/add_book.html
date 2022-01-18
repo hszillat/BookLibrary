@@ -1,39 +1,68 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>My Library application</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
 
 <div th:insert="~{header :: copy}"></div>
 
-<form th:action="@{/submit_book}" th:object="${book}" method="post">
-    <ul th:if="${#fields.hasErrors('*')}">
-        <li th:each="error : ${#fields.errors('*')}" th:text="${error}">error</li>
-    </ul>
-
+<form action="#" th:action="@{/add_book}" th:object="${book}" method="post" class="form">
     <table>
         <tr>
             <td><label for="title">Title</label></td>
-            <td><input type="text" class="form-control" th:field="*{title}" id="title"
-                       th:classappend="${#fields.hasErrors('title')} ? 'error-field'"/></td>
+            <td>
+                <input type="text" class="form-control" th:field="*{title}" id="title" placeholder="Book title"/>
+                <ul>
+                    <li th:each="err : ${#fields.errors('title')}" th:text="${err}" class="error"/>
+                </ul>
+            </td>
         </tr>
         <tr>
             <td><label for="originalTitle">Original Title</label></td>
-            <td><input type="text" class="form-control" th:field="*{originalTitle}" id="originalTitle"/></td>
+            <td>
+                <input type="text" class="form-control" th:field="*{originalTitle}" id="originalTitle"
+                       placeholder="Original title of the book"/>
+                <ul>
+                    <li th:each="err : ${#fields.errors('originalTitle')}" th:text="${err}" class="error"/>
+                </ul>
+            </td>
         </tr>
         <tr>
             <td><label for="isbn">ISBN</label></td>
-            <td><input type="text" class="form-control" th:field="*{isbn}" id="isbn"/></td>
+            <td>
+                <input type="text" class="form-control" th:field="*{isbn}" id="isbn" placeholder="ISBN"/>
+                <ul>
+                    <li th:each="err : ${#fields.errors('isbn')}" th:text="${err}" class="error"/>
+                </ul>
+            </td>
         </tr>
         <tr>
             <td><label for="publishedYear">Published Year</label></td>
-            <td><input type="text" class="form-control" th:field="*{publishedYear}" id="publishedYear"/></td>
+            <td>
+                <input type="text" class="form-control" th:field="*{publishedYear}" id="publishedYear"
+                       placeholder="Year of the publication"/>
+                <ul>
+                    <li th:each="err : ${#fields.errors('publishedYear')}" th:text="${err}" class="error"/>
+                </ul>
+            </td>
+        </tr>
+        <tr th:if="${#fields.hasErrors('global')}">
+            <td colspan="2">
+                <p th:each="err : ${#fields.errors('global')}" th:text="${err}" class="error"/>
+            </td>
         </tr>
         <tr>
             <td colspan="2">
                 <button type="submit" class="btn btn-primary btn-block mt-3">Save Book</button>
+                <a th:href="@{/books}">Back to Library</a>
             </td>
         </tr>
     </table>

@@ -4,6 +4,7 @@ import de.szillat.library.BookModelAssembler;
 import de.szillat.library.model.Book;
 import de.szillat.library.repository.BookNotFoundException;
 import de.szillat.library.repository.BookRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.hateoas.CollectionModel;
@@ -12,8 +13,13 @@ import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -71,11 +77,11 @@ public class BookRestController {
         Optional<Book> book;
         if (id.longValue() == 42) {
             book = Optional.of(new Book());
-            book.get().id = 42L;
+            book.get().setId(42L);
             book.get().setTitle("Ready Player Two");
-            book.get().originalTitle = "Ready Player Two";
+            book.get().setOriginalTitle("Ready Player Two");
             book.get().setIsbn("978-0-593-35634-0");
-            book.get().publishedYear = 2019;
+            book.get().setPublishedYear(2019);
         } else {
             book = bookRepository.findById(id);
         }
@@ -93,11 +99,22 @@ public class BookRestController {
 
         _log.debug("Storing book: '{}'", book);
 
-        EntityModel<Book> bookEntity = assembler.toModel(bookRepository.save(book));
+        if (StringUtils.isBlank(book.getTitle())) {
+            return ResponseEntity.accepted().build();
+        }
 
-        return ResponseEntity
-                .created(bookEntity.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(bookEntity);
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<Book>> violations = validator.validate(book);
+        if (violations.isEmpty()) {
+            EntityModel<Book> bookEntity = assembler.toModel(bookRepository.save(book));
+
+            return ResponseEntity
+                    .created(bookEntity.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                    .body(bookEntity);
+        }
+
+        return ResponseEntity.accepted().body(violations);
     }
 
     @PutMapping("/service/books/{id}")
@@ -110,14 +127,14 @@ public class BookRestController {
         Book storedBook = bookRepository.findById(id)
                 .map(book -> {
                     book.setTitle(newBook.getTitle());
-                    book.originalTitle = newBook.originalTitle;
+                    book.setOriginalTitle(newBook.getOriginalTitle());
                     book.setIsbn(newBook.getIsbn());
-                    book.publishedYear = newBook.publishedYear;
+                    book.setPublishedYear(newBook.getPublishedYear());
 
                     return bookRepository.save(book);
                 })
                 .orElseGet(() -> {
-                    newBook.id = id;
+                    newBook.setId(id);
 
                     return bookRepository.save(newBook);
                 });
