@@ -62,6 +62,7 @@ public class BookWebController {
 
     @PostMapping("/add_book")
     ModelAndView addBook(@Valid Book book, BindingResult result, Model model) {
+        // Als Parameter: @AuthenticationPrincipal User user
         assert bookRestController != null;
         assert bookValidationService != null;
 

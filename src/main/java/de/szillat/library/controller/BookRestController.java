@@ -51,7 +51,7 @@ public class BookRestController {
 
         List<EntityModel<Book>> books =
                 StreamSupport.stream(bookRepository.findAll().spliterator(), false)
-                        .map(book -> assembler.toModel(book))
+                        .map(assembler::toModel)
                         .collect(Collectors.toList());
 
         CollectionModel<EntityModel<Book>> bookEntities = CollectionModel.of(books, linkTo(methodOn(BookRestController.class).all()).withSelfRel());
@@ -74,18 +74,7 @@ public class BookRestController {
             throw new BookNotFoundException();
         }
 
-        Optional<Book> book;
-        if (id.longValue() == 42) {
-            book = Optional.of(new Book());
-            book.get().setId(42L);
-            book.get().setTitle("Ready Player Two");
-            book.get().setOriginalTitle("Ready Player Two");
-            book.get().setIsbn("978-0-593-35634-0");
-            book.get().setPublishedYear(2019);
-        } else {
-            book = bookRepository.findById(id);
-        }
-
+        Optional<Book> book = bookRepository.findById(id);
         EntityModel<Book> bookEntity = assembler.toModel(book.orElseThrow(() ->
                 new BookNotFoundException(id)));
 
