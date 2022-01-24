@@ -38,6 +38,14 @@ public class BookWebController {
         this.bookValidationService = bookValidationService;
     }
 
+    @GetMapping("/")
+    ModelAndView index() {
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("redirect:/books");
+
+        return mav;
+    }
+
     @GetMapping("/books")
     ModelAndView books() {
         assert bookRestController != null;

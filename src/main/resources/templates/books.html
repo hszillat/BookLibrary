@@ -1,38 +1,40 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>My Library application</title>
 </head>
 <body>
 
 <div th:insert="~{header :: copy}"></div>
 
-<p>Today is: <span th:text="${today}">13 february 2011</span></p>
+<div class="container">
+    <div class="page-header">
+        <h1 th="${title}">Library</h1>
+        <p>Today is: <span th:text="${today}">13 february 2011</span></p>
+    </div>
 
-<p>
-<table>
-    <thead>
-    <tr>
-        <th>Title</th>
-        <th>Original Title</th>
-        <th>ISBN</th>
-        <th>Published in Year</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="book: ${allBooks.getBody()}">
-        <td th:text="${book.getContent().getTitle()}">Software Design for Flexibility</td>
-        <td th:text="${book.getContent().getOriginalTitle()}">&nbsp;</td>
-        <td th:text="${book.getContent().getIsbn()}">978-0-262-04549-0</td>
-        <td th:text="${book.getContent().getPublishedYear()}">2021</td>
-    </tr>
-    <tr>
-        <td colspan="4"><a th:href="@{/add_book}">Add book</a></td>
-    </tr>
-    </tbody>
-</table>
-</p>
+    <div class="col-md-10">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Original Title</th>
+                <th>ISBN</th>
+                <th>Published in Year</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book: ${allBooks.getBody()}">
+                <td th:text="${book.getContent().getTitle()}">Software Design for Flexibility</td>
+                <td th:text="${book.getContent().getOriginalTitle()}">&nbsp;</td>
+                <td th:text="${book.getContent().getIsbn()}">978-0-262-04549-0</td>
+                <td th:text="${book.getContent().getPublishedYear()}">2021</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 <div th:insert="~{footer :: copy}"></div>
 
