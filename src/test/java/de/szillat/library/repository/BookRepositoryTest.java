@@ -18,11 +18,11 @@ public class BookRepositoryTest {
 
     @Test
     public void testFindById() {
-        Book book = new Book();
-        book.setTitle("Ready Player Two");
-        book.setOriginalTitle("Ready Player Two");
-        book.setIsbn("978-0-593-35634-0");
-        book.setPublishedYear(2019);
+        Book book = new Book.BookBuilder()
+                .withTitle("Ready Player Two")
+                .withOriginalTitle("Ready Player Two")
+                .withISBN("978-0-593-35634-0").
+                publishedIn(2019).build();
 
         Book storedBook = bookRepository.save(book);
         assertNotNull(storedBook);
@@ -41,11 +41,11 @@ public class BookRepositoryTest {
 
     @Test
     public void testFindByIsbn() {
-        Book book = new Book();
-        book.setTitle("Ready Player Two");
-        book.setOriginalTitle("Ready Player Two");
-        book.setIsbn("978-0-593-35634-0");
-        book.setPublishedYear(2019);
+        Book book = new Book.BookBuilder()
+                .withTitle("Ready Player Two")
+                .withOriginalTitle("Ready Player Two")
+                .withISBN("978-0-593-35634-0").
+                publishedIn(2019).build();
 
         Book storedBook = bookRepository.save(book);
         assertNotNull(storedBook);
