@@ -6,6 +6,13 @@
 <body>
 <div th:fragment="copy">
     <h1 th="${title}">My Library application</h1>
+    <h3 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h3>
+</div>
+
+<div>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Sign Out"/>
+    </form>
 </div>
 </body>
 </html>
