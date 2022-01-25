@@ -17,6 +17,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @SuppressWarnings("unused")
     private static final Logger _log = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     @Override

@@ -69,6 +69,7 @@ public class BookWebController {
     }
 
     @PostMapping("/add_book")
+    @SuppressWarnings("unused")
     ModelAndView addBook(@Valid Book book, BindingResult result, Model model) {
         // Als Parameter: @AuthenticationPrincipal User user
         assert bookRestController != null;
@@ -94,6 +95,8 @@ public class BookWebController {
         ResponseEntity<?> savedBookResponse = bookRestController.newBook(book);
         if (savedBookResponse.getStatusCode().value() == HttpStatus.OK.value()
                 || savedBookResponse.getStatusCode().value() == HttpStatus.CREATED.value()) {
+            assert savedBookResponse.getBody() != null;
+
             ModelAndView mav = new ModelAndView();
             mav.setViewName("redirect:/books");
             mav.addObject("title", "My library application");

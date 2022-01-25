@@ -1,14 +1,14 @@
 package de.szillat.library;
 
-import java.sql.Types;
-
 import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
+import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.dialect.function.VarArgsSQLFunction;
-import org.hibernate.Hibernate;
 import org.hibernate.type.StringType;
 
+import java.sql.Types;
+
+@SuppressWarnings("unused")
 public class SQLDialect extends Dialect {
     public SQLDialect() {
         registerColumnType(Types.BIT, "integer");
@@ -56,15 +56,6 @@ public class SQLDialect extends Dialect {
 
     public String getIdentitySelectString() {
         return "select last_insert_rowid()";
-    }
-
-    public boolean supportsLimit() {
-        return true;
-    }
-
-    protected String getLimitString(String query, boolean hasOffset) {
-        return new StringBuffer(query.length() + 20).append(query).append(hasOffset ? " limit ? offset ?" : " limit ?")
-                .toString();
     }
 
     public boolean supportsTemporaryTables() {
