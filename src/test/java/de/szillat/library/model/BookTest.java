@@ -1,7 +1,9 @@
 package de.szillat.library.model;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BookTest {
     @Test
@@ -12,11 +14,15 @@ public class BookTest {
         book.setTitle(title);
         assertEquals(title, book.getTitle());
 
-        book.setTitle(null);
-        assertEquals(title, book.getTitle());
+        try {
+            book.setTitle(null);
+            fail("Unexpected failure of exception!");
+        } catch (NullPointerException e) {
+            // Book::setTitle is annotated as @NonNull, thus the exception is expected.
+        }
 
         book.setTitle("");
-        assertEquals(title, book.getTitle());
+        assertEquals("", book.getTitle());
 
         final String title2 = "Ready Player Two";
         book.setTitle(title2);
