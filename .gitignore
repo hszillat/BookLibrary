@@ -33,3 +33,4 @@ build/
 .vscode/
 /library.db
 /LibraryApplication.log
+/test-library.db
