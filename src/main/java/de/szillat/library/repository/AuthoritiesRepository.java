@@ -1,10 +1,9 @@
 package de.szillat.library.repository;
 
-import de.szillat.library.model.User;
+import de.szillat.library.model.Authorities;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
-    User findByUsername(String username);
+public interface AuthoritiesRepository extends JpaRepository<Authorities, String> {
 }

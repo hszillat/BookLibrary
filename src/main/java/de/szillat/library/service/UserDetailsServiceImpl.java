@@ -29,6 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByUsername(username);
         if (user == null) throw new UsernameNotFoundException(username);
 
+        // TODO Ask AuthoritiesRepository for Roles.
         return new UserDetailsImpl(user);
     }
 }

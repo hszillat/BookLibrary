@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "books", indexes = {@Index(columnList = "isbn"), @Index(columnList = "title")})
 public class Book {
+    @Transient
     private static final Logger _log = LoggerFactory.getLogger(Book.class);
 
     public static class BookBuilder<SELF extends BookBuilder<SELF>> {
