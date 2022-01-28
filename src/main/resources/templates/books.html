@@ -8,31 +8,37 @@
 
 <div th:insert="~{header :: copy}"></div>
 
-<div class="container">
-    <div class="page-header">
-        <h1 th="${title}">Library</h1>
-        <p>Today is: <span th:text="${today}">13 february 2011</span></p>
-    </div>
+<div class="jumbotron">
+    <div class="container">
+        <div class="page-header">
+            <h1 th="${title}">Library</h1>
+            <p>Today is: <span th:text="${today}">13 february 2011</span></p>
+        </div>
 
-    <div class="col-md-10">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Title</th>
-                <th>Original Title</th>
-                <th>ISBN</th>
-                <th>Published in Year</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="book: ${allBooks.getBody()}">
-                <td th:text="${book.getContent().getTitle()}">Software Design for Flexibility</td>
-                <td th:text="${book.getContent().getOriginalTitle()}">&nbsp;</td>
-                <td th:text="${book.getContent().getIsbn()}">978-0-262-04549-0</td>
-                <td th:text="${book.getContent().getPublishedYear()}">2021</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="col-md-10">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Original Title</th>
+                    <th>ISBN</th>
+                    <th>Published in Year</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="book: ${allBooks.getBody()}">
+                    <td>
+                        <a th:href="@{/show_book/{id}(id=${book.getContent().getId()})}">
+                            <span th:text="${book.getContent().getTitle()}">Software Design for Flexibility</span>
+                        </a>
+                    </td>
+                    <td th:text="${book.getContent().getOriginalTitle()}">&nbsp;</td>
+                    <td th:text="${book.getContent().getIsbn()}">978-0-262-04549-0</td>
+                    <td th:text="${book.getContent().getPublishedYear()}">2021</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
