@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "books", indexes = {@Index(columnList = "isbn"), @Index(columnList = "title")})
 public class Book {
+    @Transient
     private static final Logger _log = LoggerFactory.getLogger(Book.class);
 
     public static class BookBuilder<SELF extends BookBuilder<SELF>> {
@@ -33,36 +34,42 @@ public class Book {
             this.publishedYear = LocalDateTime.now().getYear();
         }
 
+        @SuppressWarnings("unused")
         public BookBuilder(String title) {
             this();
 
             this.title = StringUtils.trim(title);
         }
 
+        @SuppressWarnings({"unused", "unchecked"})
         public SELF withId(Long id) {
             if (id != null) this.id = id;
 
             return (SELF) this;
         }
 
+        @SuppressWarnings("unchecked")
         public SELF withTitle(String title) {
             if (StringUtils.isNotBlank(title)) this.title = StringUtils.trim(title);
 
             return (SELF) this;
         }
 
+        @SuppressWarnings("unchecked")
         public SELF withOriginalTitle(String originalTitle) {
             if (StringUtils.isNotBlank(originalTitle)) this.originalTitle = StringUtils.trim(originalTitle);
 
             return (SELF) this;
         }
 
+        @SuppressWarnings("unchecked")
         public SELF withISBN(String isbn) {
             if (StringUtils.isNotBlank(isbn)) this.isbn = StringUtils.trim(isbn);
 
             return (SELF) this;
         }
 
+        @SuppressWarnings("unchecked")
         public SELF publishedIn(int publishedYear) {
             this.publishedYear = publishedYear;
 
@@ -70,9 +77,7 @@ public class Book {
         }
 
         public Book build() {
-            Book book = new Book(this);
-
-            return book;
+            return new Book(this);
         }
     }
 
@@ -96,7 +101,7 @@ public class Book {
     @Max(value = 9999, message = "No books after the Y9K-problem!")
     private int publishedYear;
 
-    private Book(BookBuilder builder) {
+    private Book(BookBuilder<?> builder) {
         this();
 
         setId(builder.id);

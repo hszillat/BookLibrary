@@ -18,7 +18,7 @@ public class BookRepositoryTest {
 
     @Test
     public void testFindById() {
-        Book book = new Book.BookBuilder()
+        Book book = new Book.BookBuilder<>()
                 .withTitle("Ready Player Two")
                 .withOriginalTitle("Ready Player Two")
                 .withISBN("978-0-593-35634-0").
@@ -34,14 +34,14 @@ public class BookRepositoryTest {
         assertTrue(loadedBookFromDb.isPresent());
         assertEquals(book.getTitle(), loadedBookFromDb.get().getTitle());
 
-        Optional<Book> thisBookIsNotFound = bookRepository.findById(Long.valueOf(-1));
+        Optional<Book> thisBookIsNotFound = bookRepository.findById(-1L);
         assertNotNull(thisBookIsNotFound);
         assertFalse(thisBookIsNotFound.isPresent());
     }
 
     @Test
     public void testFindByIsbn() {
-        Book book = new Book.BookBuilder()
+        Book book = new Book.BookBuilder<>()
                 .withTitle("Ready Player Two")
                 .withOriginalTitle("Ready Player Two")
                 .withISBN("978-0-593-35634-0").

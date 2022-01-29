@@ -1,6 +1,5 @@
 package de.szillat.library;
 
-import de.szillat.library.controller.BookRestController;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
