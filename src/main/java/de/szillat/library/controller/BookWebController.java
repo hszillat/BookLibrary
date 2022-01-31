@@ -44,6 +44,7 @@ public class BookWebController {
     @GetMapping("/")
     ModelAndView index() {
         ModelAndView mav = new ModelAndView();
+        mav.addObject("title", APP_NAME);
         mav.setViewName("redirect:/books");
 
         return mav;
