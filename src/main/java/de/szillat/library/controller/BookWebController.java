@@ -1,14 +1,12 @@
 package de.szillat.library.controller;
 
 import de.szillat.library.model.Book;
+import de.szillat.library.repository.BookNotFoundException;
 import de.szillat.library.service.BookValidationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -36,7 +34,8 @@ public class BookWebController {
 
     private final BookValidationService bookValidationService;
 
-    public BookWebController(BookRestController bookRestController, BookValidationService bookValidationService) {
+    public BookWebController(@NonNull BookRestController bookRestController,
+                             @NonNull BookValidationService bookValidationService) {
         this.bookRestController = bookRestController;
         this.bookValidationService = bookValidationService;
     }
@@ -52,9 +51,7 @@ public class BookWebController {
 
     @GetMapping("/books")
     ModelAndView books() {
-        assert bookRestController != null;
-
-        ResponseEntity<CollectionModel<EntityModel<Book>>> allBooks = bookRestController.all();
+        List<Book> allBooks = bookRestController.all();
         ModelAndView mav = new ModelAndView();
         mav.setViewName("books");
         mav.addObject("title", APP_NAME);
@@ -69,24 +66,21 @@ public class BookWebController {
     ModelAndView showBook(@PathVariable(value = "id") Long id) {
         assert id != null;
 
-        ResponseEntity<EntityModel<Book>> bookResponseEntity = (ResponseEntity<EntityModel<Book>>) bookRestController.one(id);
-        if (bookResponseEntity.getStatusCode().value() == HttpStatus.OK.value()) {
-            assert bookResponseEntity.getBody() != null;
-            assert bookResponseEntity.getBody().getContent() != null;
-
-            Book book = bookResponseEntity.getBody().getContent();
-
+        try {
+            Book book = bookRestController.one(id);
             ModelAndView mav = new ModelAndView("add_book", "book", book);
             mav.addObject("title", APP_NAME);
 
             return mav;
+        } catch (BookNotFoundException e) {
+            _log.debug("Book not found!", e);
+
+            ModelAndView mav = new ModelAndView();
+            mav.setViewName("redirect:/books");
+            mav.addObject("title", APP_NAME);
+
+            return mav;
         }
-
-        ModelAndView mav = new ModelAndView();
-        mav.setViewName("redirect:/books");
-        mav.addObject("title", APP_NAME);
-
-        return mav;
     }
 
     @GetMapping("/add_book")
@@ -100,9 +94,6 @@ public class BookWebController {
     @PostMapping("/add_book")
     @SuppressWarnings("unused")
     ModelAndView addBook(@Valid Book book, BindingResult result, Model model) {
-        assert bookRestController != null;
-        assert bookValidationService != null;
-
         _log.debug("Got Book = '{}'", book);
 
         List<String> errors = bookValidationService.validateBook(book);
@@ -120,29 +111,11 @@ public class BookWebController {
             return mav;
         }
 
-        ResponseEntity<?> savedBookResponse = bookRestController.newBook(book);
-        if (savedBookResponse.getStatusCode().value() == HttpStatus.OK.value()
-                || savedBookResponse.getStatusCode().value() == HttpStatus.CREATED.value()) {
-            assert savedBookResponse.getBody() != null;
-
-            ModelAndView mav = new ModelAndView();
-            mav.setViewName("redirect:/books");
-            mav.addObject("title", APP_NAME);
-            mav.addObject("book", ((EntityModel<?>) savedBookResponse.getBody()).getContent());
-
-            return mav;
-        }
-
-        // Error occurred.
-        _log.error("Validation of Book = '{}' failed!", book);
-
+        Book savedBook = bookRestController.newBook(book);
         ModelAndView mav = new ModelAndView();
-        mav.setViewName("add_book");
+        mav.setViewName("redirect:/books");
         mav.addObject("title", APP_NAME);
-        mav.addObject("book", book);
-
-        result.addError(new ObjectError("globalError", "Could not store book!"));
-        mav.addObject(result);
+        mav.addObject("book", savedBook);
 
         return mav;
     }

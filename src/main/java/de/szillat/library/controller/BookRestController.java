@@ -1,42 +1,27 @@
 package de.szillat.library.controller;
 
-import de.szillat.library.BookModelAssembler;
 import de.szillat.library.model.Book;
 import de.szillat.library.repository.BookNotFoundException;
 import de.szillat.library.repository.BookRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 public class BookRestController {
     private static final Logger _log = LoggerFactory.getLogger(BookRestController.class);
 
     private final BookRepository bookRepository;
 
-    private final BookModelAssembler assembler;
-
-    public BookRestController(BookRepository bookRepository, BookModelAssembler assembler) {
+    public BookRestController(@NonNull BookRepository bookRepository) {
         this.bookRepository = bookRepository;
-        this.assembler = assembler;
     }
 
     @GetMapping("/service/hello")
@@ -45,27 +30,14 @@ public class BookRestController {
     }
 
     @GetMapping("/service/books")
-    public ResponseEntity<CollectionModel<EntityModel<Book>>> all() {
-        assert bookRepository != null;
-        assert assembler != null;
-
-        List<EntityModel<Book>> books =
-                StreamSupport.stream(bookRepository.findAll().spliterator(), false)
-                        .map(assembler::toModel)
-                        .collect(Collectors.toList());
-
-        CollectionModel<EntityModel<Book>> bookEntities = CollectionModel.of(books, linkTo(methodOn(BookRestController.class).all()).withSelfRel());
-
-        return ResponseEntity
-                .ok()
-                .body(bookEntities);
+    public List<Book> all() {
+        return StreamSupport
+                .stream(bookRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/service/books/{id}")
-    public ResponseEntity<?> one(@PathVariable Long id) {
-        assert bookRepository != null;
-        assert assembler != null;
-
+    public Book one(@PathVariable Long id) {
         _log.debug("id = {}", id);
 
         if (id == null) {
@@ -75,42 +47,20 @@ public class BookRestController {
         }
 
         Optional<Book> book = bookRepository.findById(id);
-        EntityModel<Book> bookEntity = assembler.toModel(book.orElseThrow(() ->
-                new BookNotFoundException(id)));
+        _log.debug("Found book = '{}'", book);
 
-        return ResponseEntity.ok(bookEntity);
+        return book.orElseThrow(BookNotFoundException::new);
     }
 
     @PostMapping("/service/books")
-    public ResponseEntity<?> newBook(@RequestBody Book book) {
-        assert bookRepository != null;
-        assert assembler != null;
-
+    public Book newBook(@RequestBody Book book) {
         _log.debug("Storing book: '{}'", book);
 
-        if (StringUtils.isBlank(book.getTitle())) {
-            return ResponseEntity.accepted().build();
-        }
-
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<Book>> violations = validator.validate(book);
-        if (violations.isEmpty()) {
-            EntityModel<Book> bookEntity = assembler.toModel(bookRepository.save(book));
-
-            return ResponseEntity
-                    .created(bookEntity.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                    .body(bookEntity);
-        }
-
-        return ResponseEntity.accepted().body(violations);
+        return bookRepository.save(book);
     }
 
     @PutMapping("/service/books/{id}")
-    public ResponseEntity<?> updateBook(@RequestBody Book newBook, @PathVariable Long id) {
-        assert bookRepository != null;
-        assert assembler != null;
-
+    public Book updateBook(@RequestBody Book newBook, @PathVariable Long id) {
         _log.debug("Updating book = '{}' with ID = '{}'", newBook, id);
 
         Book storedBook = bookRepository.findById(id)
@@ -128,22 +78,15 @@ public class BookRestController {
                     return bookRepository.save(newBook);
                 });
 
-        EntityModel<Book> bookEntity = assembler.toModel(storedBook);
+        _log.debug("storedBook = '{}'", storedBook);
 
-        return ResponseEntity
-                .accepted()
-                .body(bookEntity);
+        return storedBook;
     }
 
     @DeleteMapping("/service/books/{id}")
-    public ResponseEntity<?> deleteBook(@PathVariable Long id) {
-        assert bookRepository != null;
-        assert assembler != null;
-
+    public void deleteBook(@PathVariable Long id) {
         if (id != null)
             bookRepository.deleteById(id);
         else throw new BookNotFoundException(id);
-
-        return ResponseEntity.noContent().build();
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,9 +66,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/css/**", "/js/**", "/fonts/**")
                 .permitAll();
 
+        http.authorizeRequests()
+                .antMatchers("/service/**")
+                .permitAll()
+                // Sinnvoll fuer REST-Services:
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         http
                 .authorizeRequests()
-                .antMatchers("/", "/books", "/service").permitAll()
+                .antMatchers("/", "/books" /*, "/service" */).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -76,12 +85,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .logout()
-                .permitAll()
-        // Sinnvoll fuer REST-Services:
-        //.and()
-        //.sessionManagement()
-        //.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        ;
+                .permitAll();
 
         // fix H2 database console: Refused to display ' in a frame because it set 'X-Frame-Options' to 'deny'
         http.headers().frameOptions().sameOrigin();
